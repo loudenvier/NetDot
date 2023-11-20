@@ -1,4 +1,6 @@
 # NetDot
+![NetStandard](https://img.shields.io/badge/.NET%20Standard-2.0-lightgrey.svg)
+
 A (very) simple parser/deserializer from Dot Notation text strings to strongly typed classes and/or dictionaries+lists. 
 
 In the remote possibility that you ever wanted to parse strings like these...
