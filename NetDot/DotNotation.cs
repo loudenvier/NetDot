@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace NetDot
 {
@@ -22,11 +24,44 @@ namespace NetDot
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
             NullValueHandling = NullValueHandling.Ignore,
         };
-        public static T? Deserialize<T>(this string text, JsonSerializerSettings? settings = null) {
+        public static T? Deserialize<T>(string text, JsonSerializerSettings? settings = null) {
             settings ??= defaultSettings;
             var parsed = Parse(text);
             var json = JsonConvert.SerializeObject(parsed, settings);
             return JsonConvert.DeserializeObject<T>(json, settings);
+        }
+
+        public static string Serialize(object o, string? prefix = null) {
+            static string d(string? s) => s is null ? "" : s + '.';
+            if (o is null) return "";
+            var sb = new StringBuilder();
+            if (typeof(IDictionary).IsAssignableFrom(o.GetType())) {
+                var dict = o as IDictionary;
+                if (dict is not null) {
+                    foreach (DictionaryEntry kvp in dict) {
+                        if (kvp.Value is null) continue;
+                        var dictText = $"{prefix}[{kvp.Key}]";
+                        sb.Append(Serialize(kvp.Value, dictText));
+                    }
+                }
+            } else if (o.GetType().IsArray) {
+                var arr = o as Array;
+                for (int i = 0; i < arr?.Length; i++) {
+                    var value = arr.GetValue(i);
+                    if (value is null) continue;
+                    var arrText = $"{prefix}[{i}]";
+                    sb.Append(Serialize(value, arrText));
+                }
+            } else if (o.GetType().IsClass && o is not string) {
+                foreach (var prop in o.GetType().GetProperties()) {
+                    var v = prop.GetValue(o);
+                    if (v is not null)
+                        sb.Append(Serialize(v, $"{d(prefix)}{prop.Name}"));
+                }
+            } else {
+                sb.AppendLine($"{prefix}={o}");
+            }
+            return sb.ToString();
         }
 
         private static void ParseInternal(string singleLine, IDictionary<string, object> property) {
