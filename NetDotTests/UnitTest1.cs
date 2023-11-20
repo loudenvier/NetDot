@@ -265,5 +265,17 @@ namespace NetDotTests
             Assert.Equal("9", pessoa.children[0].idade);
             Assert.Same(pessoa, result);
         }
+
+        public record PersonRecord(string Name, int Age);
+        [Fact]
+        public void CanDeserializeRecordClass() {
+            var person = DotNotation.Deserialize<PersonRecord>("""
+                name=felipe
+                age=47
+                """);
+            Assert.NotNull(person);
+            Assert.Equal("felipe", person.Name);
+            Assert.Equal(47, person.Age);
+        }
     }
 }
