@@ -80,7 +80,7 @@ namespace NetDot
             }
         }
 
-        static char[] separator = { '=' };
+        static readonly char[] separator = { '=' };
         private static (string[], object) SplitMembersFromValue(string text) {
             // TODO: Allow caller to customize member/value separator
             var membersAndValue = text.Split(separator, 2);
