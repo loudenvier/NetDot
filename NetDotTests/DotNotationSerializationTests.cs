@@ -1,5 +1,4 @@
 ﻿using NetDot;
-using System.Formats.Tar;
 
 namespace NetDotTests
 {
@@ -149,6 +148,142 @@ namespace NetDotTests
                 Age=47
 
                 """, text);
+        }
+        [Fact]
+        public void CanChangeKeyValueSeparator() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 }, 
+                settings: new DotNotationSettings { KeyValueSeparator = ":" });
+            Assert.Equal("""
+                Name:Felipe
+                Age:47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanAddSpaceBeforeValue() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
+                settings: new DotNotationSettings { 
+                    KeyValueSeparator = ":", 
+                    SpacingBeforeValue = " " });
+            Assert.Equal("""
+                Name: Felipe
+                Age: 47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanAddSpaceAfterKey() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
+                settings: new DotNotationSettings {
+                    KeyValueSeparator = ":",
+                    SpacingBeforeValue = " ",
+                    SpacingAfterKey = " ",
+                });
+            Assert.Equal("""
+                Name : Felipe
+                Age : 47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanSeparateItemsWithArbitrarySeparator() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
+                settings: new DotNotationSettings { EntrySeparator = ", " });
+            Assert.Equal("""
+                Name=Felipe, Age=47, 
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanQuoteStrings() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
+                settings: new DotNotationSettings { QuoteStrings = true });
+            Assert.Equal("""
+                Name="Felipe"
+                Age=47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanQuoteValues_WhichOverridesQuoteStrings() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
+                settings: new DotNotationSettings { QuoteValues = true });
+            Assert.Equal("""
+                Name="Felipe"
+                Age="47"
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanChangeQuoteChar() {
+            var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
+                settings: new DotNotationSettings { QuoteValues = true, QuoteChar = '_' });
+            Assert.Equal("""
+                Name=_Felipe_
+                Age=_47_
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanChangeDotConnector() {
+            var text = DotNotation.Serialize(new { Person = new { Name = "Felipe", Age = 47 } },
+                settings: new DotNotationSettings { DotConnector = "_" });
+            Assert.Equal("""
+                Person_Name=Felipe
+                Person_Age=47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanTrimValues() {
+            var text = DotNotation.Serialize(new { Person = new { Name = " Felipe   ", Age = 47 } },
+                settings: new DotNotationSettings { TrimValues = true });
+            Assert.Equal("""
+                Person.Name=Felipe
+                Person.Age=47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void WithoutTrimmingSpacingIsPreserved() {
+            var text = DotNotation.Serialize(new { Person = new { Name = " Felipe   ", Age = 47 } },
+                settings: new DotNotationSettings { TrimValues = false, QuoteStrings = true });
+            Assert.Equal("""
+                Person.Name=" Felipe   "
+                Person.Age=47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanTrimMultipleCharacters() {
+            var text = DotNotation.Serialize(new { Person = new { Name = " Felipe  ***  ", Age = 47 } },
+                settings: new DotNotationSettings { TrimValues = true, TrimChars = new[] { ' ', '*' } });
+            Assert.Equal("""
+                Person.Name=Felipe
+                Person.Age=47
+
+                """,
+                 text);
+        }
+        [Fact]
+        public void CanSurroundEntriesWithOpeningAndClosingText() {
+            var text = DotNotation.Serialize(new { Person = new { Name = "Felipe", Age = 47 } },
+                settings: new DotNotationSettings { SurroundingTexts = ("{ ", " }")});
+            Assert.Equal("""
+                { Person.Name=Felipe }
+                { Person.Age=47 }
+
+                """,
+                 text);
         }
 
     }

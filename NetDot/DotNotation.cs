@@ -31,8 +31,9 @@ namespace NetDot
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
 
-        public static string Serialize(object? o, string? prefix = null) {
-            static string d(string? s) => s is null ? "" : s + '.';
+        public static string Serialize(object? o, string? prefix = null, DotNotationSettings? settings=null) {
+            settings ??= DotNotationSettings.Default;
+            string dot(string? s) => s is null ? "" : s + settings.DotConnector;
             if (o is null) return "";
             var sb = new StringBuilder();
             if (typeof(IDictionary).IsAssignableFrom(o.GetType())) {
@@ -40,7 +41,7 @@ namespace NetDot
                 if (dict is not null) {
                     foreach (DictionaryEntry kvp in dict) {
                         if (kvp.Value is null) continue;
-                        sb.Append(Serialize(kvp.Value, $"{prefix}[{kvp.Key}]"));
+                        sb.Append(Serialize(kvp.Value, $"{prefix}[{kvp.Key}]", settings));
                     }
                 }
             } else if (o.GetType().IsArray) {
@@ -48,19 +49,29 @@ namespace NetDot
                 for (int i = 0; i < arr?.Length; i++) {
                     var value = arr.GetValue(i);
                     if (value is null) continue;
-                    sb.Append(Serialize(value, $"{prefix}[{i}]"));
+                    sb.Append(Serialize(value, $"{prefix}[{i}]", settings));
                 }
             } else if (o.GetType().IsClass && o is not string) {
                 foreach (var prop in o.GetType().GetProperties()) {
                     var v = prop.GetValue(o);
                     if (v is not null)
-                        sb.Append(Serialize(v, $"{d(prefix)}{prop.Name}"));
+                        sb.Append(Serialize(v, $"{dot(prefix)}{prop.Name}", settings));
                 }
             } else {
-                sb.AppendLine($"{prefix}={o}");
+                if (prefix is not null)
+                    sb.Append(WriteEntry(prefix, o, settings)); // $"{prefix}={o}");
             }
             return sb.ToString();
         }
+
+        private static string WriteEntry(string key, object value, DotNotationSettings s) => 
+            $"{s.SurroundingTexts.opening}{WriteKey(key, s)}{s.SpacingAfterKey}{s.KeyValueSeparator}{s.SpacingBeforeValue}{WriteValue(value, s)}{s.SurroundingTexts.closing}{s.EntrySeparator}";
+        private static string WriteKey(string key, DotNotationSettings s) => key;
+        private static string WriteValue(object value, DotNotationSettings s) {
+            var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
+            var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
+            return $"{quote}{textValue}{quote}";
+        } 
 
         private static void ParseInternal(string singleLine, IDictionary<string, object> property) {
             var (members, value) = SplitMembersFromValue(singleLine);

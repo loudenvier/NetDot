@@ -4,6 +4,9 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+        <VersionPrefix>1.0.2</VersionPrefix>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <Title>NetDot</Title>
     </PropertyGroup>
 
     <ItemGroup>
