@@ -5,9 +5,23 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <VersionPrefix>1.0.2</VersionPrefix>
-        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Title>NetDot</Title>
+        <Authors>felipemachado</Authors>
+        <Description>A (very) simple parser, deserializer and serializer for Dot Notation text strings, such as used by Dahua's cameras API and SDK.</Description>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/loudenvier/NetDot</RepositoryUrl>
+        <PackageTags>dotnotation;dahua;serialization;deserialization;dot notation;dahua cameras;dahua API;dahua SDK;</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) Felipe Machado (Loudenvier) 2023</Copyright>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
