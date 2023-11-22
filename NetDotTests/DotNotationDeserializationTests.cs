@@ -60,8 +60,6 @@ namespace NetDotTests
             Assert.NotNull(person);
             Assert.Equal("felipe", person.Name);
             Assert.Equal(47, person.Age);
-            // Test to see if github workflow catches failed test
-            Assert.True(false);
         }
     }
 }
