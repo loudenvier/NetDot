@@ -1,6 +1,7 @@
 # NetDot
 ![NetStandard](https://img.shields.io/badge/.NET%20Standard-2.0-lightgrey.svg) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/NetDot)
   ![Nuget](https://img.shields.io/nuget/dt/NetDot)
+  ![NET workflow](https://github.com/loudenvier/NetDot/actions/workflows/dotnet.yml/badge.svg)
 
 
 A (very) simple parser/(des)erializer for Dot Notation text strings. It can deserialize text into strongly typed classes and/or dictionaries+lists. 
