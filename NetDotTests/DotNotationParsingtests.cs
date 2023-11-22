@@ -275,6 +275,40 @@ namespace NetDotTests
             Assert.Equal("47", felipe["idade"]);
         }
         [Fact]
+        public void ArrayItemCanBeComplexAndHoldArraysOnTheirOwn() {
+            var dict = DotNotation.Parse("""
+                time.pessoa[0].nome=felipe
+                time.pessoa[0].amigos.principais[0].nome=ricardo
+                time.pessoa[0].amigos.principais[1].nome=claudio
+                """);
+            Assert.NotNull(dict);
+            Assert.Single(dict);
+            var time = dict["time"] as Dictionary<string, object>;
+            Assert.NotNull(time);
+            Assert.Single(time);
+            var pessoas = time["pessoa"] as List<object?>;
+            Assert.NotNull(pessoas);
+            Assert.Single(pessoas);
+            var felipe = pessoas[0] as Dictionary<string, object>;
+            Assert.NotNull(felipe);
+            Assert.Equal(2, felipe.Count);
+            Assert.Equal("felipe", felipe["nome"]);
+            var amigos = felipe["amigos"] as Dictionary<string, object>;
+            Assert.NotNull(amigos);
+            Assert.Single(amigos);
+            var principais = amigos["principais"] as List<object?>;
+            Assert.NotNull(principais);
+            Assert.Equal(2, principais.Count);
+            var ricardo = principais[0] as Dictionary<string, object>;
+            Assert.NotNull(ricardo);
+            Assert.Single(ricardo);
+            Assert.Equal("ricardo", ricardo["nome"]);
+            var claudio = principais[1] as Dictionary<string, object>;
+            Assert.NotNull(claudio);
+            Assert.Single(claudio);
+            Assert.Equal("claudio", claudio["nome"]);
+        }
+        [Fact]
         public void CanParseIntoExpandoObject() {
             dynamic pessoa = new ExpandoObject();
             dynamic result = DotNotation.Parse("""

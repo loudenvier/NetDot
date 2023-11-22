@@ -58,20 +58,14 @@ namespace NetDot
                         list[member.Index] = new Dictionary<string, object>();
                     }
                     current = list;
-                    //StoreArrayItem((List<object?>)memberProp, member, isLast ? value : property);
                 } else {
+                    if (current is not IDictionary<string, object> dict) 
+                        dict = (IDictionary<string, object>)((List<object?>)current)[lastArrayIndex]!;
                     if (isLast) {
-                        if (current is IDictionary<string, object> dict)
-                            dict[member.Name] = value;
-                        else if (current is List<object?> list) {
-                            dict = (IDictionary<string, object>)list[lastArrayIndex]!;
-                            dict[member.Name] = value;
-                            //list[lastArrayIndex] = value;
-                        }
+                        dict[member.Name] = value;
                     } else {
-                        var dict = (IDictionary<string, object>)current;
                         var newProp = dict.ContainsKey(member.Name) ? dict[member.Name] : new Dictionary<string, object>(); 
-                        ((IDictionary<string, object>)current)[member.Name] = newProp;
+                        dict[member.Name] = newProp;
                         current = newProp;
                     }
                 }
