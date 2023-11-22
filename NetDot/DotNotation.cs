@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Text;
 
@@ -19,6 +20,89 @@ namespace NetDot
             return root;
         }
 
+        private static string WriteEntry(string key, object value, DotNotationSettings s) => 
+            $"{s.SurroundingTexts.opening}{WriteKey(key, s)}{s.SpacingAfterKey}{s.KeyValueSeparator}{s.SpacingBeforeValue}{WriteValue(value, s)}{s.SurroundingTexts.closing}{s.EntrySeparator}";
+        private static string WriteKey(string key, DotNotationSettings s) => key;
+        private static string WriteValue(object value, DotNotationSettings s) {
+            var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
+            var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
+            return $"{quote}{textValue}{quote}";
+        } 
+
+        private static void ParseInternal(string singleLine, IDictionary<string, object> property) {
+            object current = property;
+            int lastArrayIndex = 0;
+            var (members, value) = SplitMembersFromValue(singleLine);
+            for (var i = 0; i < members.Length; i++) {
+                var isLast = i == members.Length - 1;
+                var member = new Member(members[i]);
+                if (member.IsArray) {
+                    IDictionary<string, object> dict;
+                    if (current is List<object?> currentList)
+                        dict = (IDictionary<string, object>)currentList[lastArrayIndex]!;
+                    else
+                        dict = (IDictionary<string, object>)current;
+                    if (dict is null) continue;
+                    lastArrayIndex = member.Index;
+                    List<object?> list;
+                    if (dict.ContainsKey(member.Name)) {
+                        list = (List<object?>)dict[member.Name]; 
+                    } else {
+                        list = new List<object?>();
+                        dict[member.Name] = list;
+                    }
+                    while (list.Count < member.Index + 1) list.Add(null);
+                    if (isLast) {
+                        list[member.Index] = value;
+                    } else if (list[member.Index] is null) {
+                        list[member.Index] = new Dictionary<string, object>();
+                    }
+                    current = list;
+                    //StoreArrayItem((List<object?>)memberProp, member, isLast ? value : property);
+                } else {
+                    if (isLast) {
+                        if (current is IDictionary<string, object> dict)
+                            dict[member.Name] = value;
+                        else if (current is List<object?> list) {
+                            dict = (IDictionary<string, object>)list[lastArrayIndex]!;
+                            dict[member.Name] = value;
+                            //list[lastArrayIndex] = value;
+                        }
+                    } else {
+                        var dict = (IDictionary<string, object>)current;
+                        var newProp = dict.ContainsKey(member.Name) ? dict[member.Name] : new Dictionary<string, object>(); 
+                        ((IDictionary<string, object>)current)[member.Name] = newProp;
+                        current = newProp;
+                    }
+                }
+            }
+        }
+
+        static readonly char[] separator = { '=' };
+        private static (string[], object) SplitMembersFromValue(string text) {
+            // TODO: Allow caller to customize member/value separator
+            var membersAndValue = text.Split(separator, 2);
+            if (membersAndValue.Length != 2)
+                throw new FormatException($"Text is not in dot notation format: {text}");
+            //TODO: Process "value" to handle quoted strings, boolean and numeric values, etc.
+            return (membersAndValue[0].Split('.'), membersAndValue[1]);
+        }
+
+        private static object CreateMemberProp(IDictionary<string, object> property, Member member) {
+            if (!property.ContainsKey(member.Name))
+                property[member.Name] = member.IsArray
+                    ? new List<object?>()
+                    : new Dictionary<string, object>();
+            return property[member.Name];
+        }
+        
+        private static void StoreArrayItem(List<object?> list, Member member, object item) {
+            // the list must contain at least index + 1 items!
+            while (list.Count < member.Index + 1)
+                list.Add(null);
+            list[member.Index] = item;
+        }
+
         static readonly JsonSerializerSettings defaultSettings = new() {
             ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
@@ -31,7 +115,7 @@ namespace NetDot
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
 
-        public static string Serialize(object? o, string? prefix = null, DotNotationSettings? settings=null) {
+        public static string Serialize(object? o, string? prefix = null, DotNotationSettings? settings = null) {
             settings ??= DotNotationSettings.Default;
             string dot(string? s) => s is null ? "" : s + settings.DotConnector;
             if (o is null) return "";
@@ -64,58 +148,6 @@ namespace NetDot
             return sb.ToString();
         }
 
-        private static string WriteEntry(string key, object value, DotNotationSettings s) => 
-            $"{s.SurroundingTexts.opening}{WriteKey(key, s)}{s.SpacingAfterKey}{s.KeyValueSeparator}{s.SpacingBeforeValue}{WriteValue(value, s)}{s.SurroundingTexts.closing}{s.EntrySeparator}";
-        private static string WriteKey(string key, DotNotationSettings s) => key;
-        private static string WriteValue(object value, DotNotationSettings s) {
-            var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
-            var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
-            return $"{quote}{textValue}{quote}";
-        } 
-
-        private static void ParseInternal(string singleLine, IDictionary<string, object> property) {
-            var (members, value) = SplitMembersFromValue(singleLine);
-            for (var i = 0; i < members.Length; i++) {
-                var isLast = i == members.Length - 1;
-                var member = new Member(members[i]);
-                var memberProp = CreateMemberProp(property, member);
-                if (member.IsArray) {
-                    StoreArrayItem((List<object?>)memberProp, member, isLast ? value : property);
-                } else {
-                    if (isLast) {
-                        property[member.Name] = value;
-                    } else {
-                        property = (IDictionary<string, object>)memberProp;
-                    }
-                }
-            }
-        }
-
-        static readonly char[] separator = { '=' };
-        private static (string[], object) SplitMembersFromValue(string text) {
-            // TODO: Allow caller to customize member/value separator
-            var membersAndValue = text.Split(separator, 2);
-            if (membersAndValue.Length != 2)
-                throw new FormatException($"Text is not in dot notation format: {text}");
-            //TODO: Process "value" to handle quoted strings, boolean and numeric values, etc.
-            return (membersAndValue[0].Split('.'), membersAndValue[1]);
-        }
-
-        private static object CreateMemberProp(IDictionary<string, object> property, Member member) {
-            if (!property.ContainsKey(member.Name))
-                property[member.Name] = member.IsArray
-                    ? new List<object?>()
-                    : new Dictionary<string, object>();
-            return property[member.Name];
-        }
-        
-        private static void StoreArrayItem(List<object?> list, Member member, object item) {
-            // the list must contain at least index + 1 items!
-            while (list.Count < member.Index + 1)
-                list.Add(null);
-            list[member.Index ?? 0] = item;
-        }
-                
         private static IEnumerable<string> EnumerateLines(string text) {
             if (text == null) yield break;
             using var reader = new StringReader(text);
@@ -135,7 +167,7 @@ namespace NetDot
                     Index = Convert.ToInt32(parts[1]);
             }
             public string Name { get; }
-            public int? Index { get; }
+            public int Index { get; }
             public bool IsArray { get; }
             public override string ToString() => $"{Name}{(IsArray ? $"[{Index}]" : "")}";
         }

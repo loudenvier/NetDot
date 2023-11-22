@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <VersionPrefix>1.0.2</VersionPrefix>
+        <VersionPrefix>1.2.0</VersionPrefix>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Title>NetDot</Title>
         <Authors>felipemachado</Authors>
