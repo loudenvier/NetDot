@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Text;
+using System.Xml;
 
 namespace NetDot
 {
@@ -36,20 +37,18 @@ namespace NetDot
             for (var i = 0; i < members.Length; i++) {
                 var isLast = i == members.Length - 1;
                 var member = new Member(members[i]);
+                var dict = current switch {
+                    List<object?> list => list[lastArrayIndex]! as IDictionary<string, object>,
+                    _ => (IDictionary<string, object>)current
+                };
+                if (dict is null) continue;
                 if (member.IsArray) {
-                    IDictionary<string, object> dict;
-                    if (current is List<object?> currentList)
-                        dict = (IDictionary<string, object>)currentList[lastArrayIndex]!;
-                    else
-                        dict = (IDictionary<string, object>)current;
-                    if (dict is null) continue;
                     lastArrayIndex = member.Index;
                     List<object?> list;
                     if (dict.ContainsKey(member.Name)) {
-                        list = (List<object?>)dict[member.Name]; 
+                        list = (List<object?>)dict[member.Name];
                     } else {
-                        list = new List<object?>();
-                        dict[member.Name] = list;
+                        dict[member.Name] = list = new List<object?>();
                     }
                     while (list.Count < member.Index + 1) list.Add(null);
                     if (isLast) {
@@ -59,8 +58,6 @@ namespace NetDot
                     }
                     current = list;
                 } else {
-                    if (current is not IDictionary<string, object> dict) 
-                        dict = (IDictionary<string, object>)((List<object?>)current)[lastArrayIndex]!;
                     if (isLast) {
                         dict[member.Name] = value;
                     } else {
