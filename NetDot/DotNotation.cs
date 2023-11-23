@@ -21,15 +21,6 @@ namespace NetDot
             return root;
         }
 
-        private static string WriteEntry(string key, object value, DotNotationSettings s) => 
-            $"{s.SurroundingTexts.opening}{WriteKey(key, s)}{s.SpacingAfterKey}{s.KeyValueSeparator}{s.SpacingBeforeValue}{WriteValue(value, s)}{s.SurroundingTexts.closing}{s.EntrySeparator}";
-        private static string WriteKey(string key, DotNotationSettings s) => key;
-        private static string WriteValue(object value, DotNotationSettings s) {
-            var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
-            var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
-            return $"{quote}{textValue}{quote}";
-        } 
-
         private static void ParseInternal(string singleLine, IDictionary<string, object> property) {
             object current = property;
             int lastArrayIndex = 0;
@@ -137,6 +128,15 @@ namespace NetDot
                     sb.Append(WriteEntry(prefix, o, settings)); // $"{prefix}={o}");
             }
             return sb.ToString();
+        }
+
+        private static string WriteEntry(string key, object value, DotNotationSettings s) =>
+            $"{s.SurroundingTexts.opening}{WriteKey(key, s)}{s.SpacingAfterKey}{s.KeyValueSeparator}{s.SpacingBeforeValue}{WriteValue(value, s)}{s.SurroundingTexts.closing}{s.EntrySeparator}";
+        private static string WriteKey(string key, DotNotationSettings s) => key;
+        private static string WriteValue(object value, DotNotationSettings s) {
+            var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
+            var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
+            return $"{quote}{textValue}{quote}";
         }
 
         private static IEnumerable<string> EnumerateLines(string text) {
