@@ -61,9 +61,9 @@ namespace NetDot
                     if (isLast) {
                         dict[member.Name] = value;
                     } else {
-                        var newProp = dict.ContainsKey(member.Name) ? dict[member.Name] : new Dictionary<string, object>(); 
-                        dict[member.Name] = newProp;
-                        current = newProp;
+                        if (!dict.ContainsKey(member.Name))
+                            dict[member.Name] = new Dictionary<string, object>();
+                        current = dict[member.Name];
                     }
                 }
             }
