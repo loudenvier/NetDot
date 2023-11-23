@@ -97,9 +97,9 @@ namespace NetDot
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
 
-        public static string Serialize(object? o, string? prefix = null, DotNotationSettings? settings = null) {
+        public static string Serialize(object? o, string prefix = "", DotNotationSettings? settings = null) {
             settings ??= DotNotationSettings.Default;
-            string dot(string? s) => s is null ? "" : s + settings.DotConnector;
+            string dot(string? s) => string.IsNullOrEmpty(s) ? "" : s + settings.DotConnector;
             if (o is null) return "";
             var sb = new StringBuilder();
             if (typeof(IDictionary).IsAssignableFrom(o.GetType())) {
@@ -124,8 +124,7 @@ namespace NetDot
                         sb.Append(Serialize(v, $"{dot(prefix)}{prop.Name}", settings));
                 }
             } else {
-                if (prefix is not null)
-                    sb.Append(WriteEntry(prefix, o, settings)); // $"{prefix}={o}");
+                sb.Append(WriteEntry(prefix, o, settings)); // $"{prefix}={o}");
             }
             return sb.ToString();
         }
