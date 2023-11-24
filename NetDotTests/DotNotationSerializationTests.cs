@@ -314,6 +314,15 @@ namespace NetDotTests
 
                 """, text);
         }
+        [Fact]
+        public void BooleansAreSerializedAsLowerCase() {
+            var text = DotNotation.Serialize(new { Bool1 = false, Bool2 = true });
+            Assert.Equal("""
+                Bool1=false
+                Bool2=true
+
+                """, text);
+        }
 
     }
 }

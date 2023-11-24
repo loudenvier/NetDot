@@ -133,6 +133,7 @@ namespace NetDot
             => s.UrlEncode ? Uri.EscapeDataString(key) : key;
         private static string WriteValue(object value, DotNotationSettings s) {
             var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
+            if (value is bool) value = value.ToString().ToLower();
             var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
             var text = $"{quote}{textValue}{quote}";
             return s.UrlEncode ? Uri.EscapeDataString(text) : text ;
