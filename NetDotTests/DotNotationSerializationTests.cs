@@ -271,8 +271,7 @@ namespace NetDotTests
                 Person.Name=Felipe
                 Person.Age=47
 
-                """,
-                 text);
+                """, text);
         }
         [Fact]
         public void CanSurroundEntriesWithOpeningAndClosingText() {
@@ -282,8 +281,38 @@ namespace NetDotTests
                 { Person.Name=Felipe }
                 { Person.Age=47 }
 
-                """,
-                 text);
+                """, text);
+        }
+        [Fact]
+        public void WillUrlEncodeValueIfNeeded() {
+            var text = DotNotation.Serialize(new { Item = "Açúcar Mascavo" }, settings: new() {
+                UrlEncode = true,
+            });
+            Assert.Equal("""
+                Item=A%C3%A7%C3%BAcar%20Mascavo
+
+                """, text);
+        }
+        [Fact]
+        public void WillUrlEncodeKeyIfNeeded() {
+            var text = DotNotation.Serialize(new { Açúcar = "Doce" }, settings: new() {
+                UrlEncode = true,
+            });
+            Assert.Equal("""
+                A%C3%A7%C3%BAcar=Doce
+
+                """, text);
+        }
+        [Fact]
+        public void WillUrlEncodeAddedQuotesIfNeeded() {
+            var text = DotNotation.Serialize(new { Item = "Açúcar Mascavo" }, settings: new() {
+                UrlEncode = true,
+                QuoteStrings = true,
+            });
+            Assert.Equal("""
+                Item=%22A%C3%A7%C3%BAcar%20Mascavo%22
+
+                """, text);
         }
 
     }

@@ -48,5 +48,9 @@ namespace NetDot
         /// Text to add around the entry
         /// </summary>
         public (string opening, string closing) SurroundingTexts { get; set; } = ("", "");
+        /// <summary>
+        /// Indicates that keys and values should be URL Encoded
+        /// </summary>
+        public bool UrlEncode { get; set; } = false;    
     }
 }

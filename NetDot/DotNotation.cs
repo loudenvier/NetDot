@@ -2,10 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Text;
-using System.Xml;
 
 namespace NetDot
 {
@@ -131,11 +129,13 @@ namespace NetDot
 
         private static string WriteEntry(string key, object value, DotNotationSettings s) =>
             $"{s.SurroundingTexts.opening}{WriteKey(key, s)}{s.SpacingAfterKey}{s.KeyValueSeparator}{s.SpacingBeforeValue}{WriteValue(value, s)}{s.SurroundingTexts.closing}{s.EntrySeparator}";
-        private static string WriteKey(string key, DotNotationSettings s) => key;
+        private static string WriteKey(string key, DotNotationSettings s) 
+            => s.UrlEncode ? Uri.EscapeDataString(key) : key;
         private static string WriteValue(object value, DotNotationSettings s) {
             var quote = s.QuoteValues || s.QuoteStrings && value is string ? $"{s.QuoteChar}" : "";
             var textValue = s.TrimValues ? $"{value}".Trim(s.TrimChars) : $"{value}";
-            return $"{quote}{textValue}{quote}";
+            var text = $"{quote}{textValue}{quote}";
+            return s.UrlEncode ? Uri.EscapeDataString(text) : text ;
         }
 
         private static IEnumerable<string> EnumerateLines(string text) {
