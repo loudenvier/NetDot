@@ -76,7 +76,11 @@ namespace NetDot
         public static T? Deserialize<T>(string text, JsonSerializerSettings? settings = null) {
             settings ??= defaultSettings;
             var parsed = Parse(text);
-            var json = JsonConvert.SerializeObject(parsed, settings);
+            return Deserialize<T>(parsed, settings);
+        }
+        public static T? Deserialize<T>(IDictionary<string, object> dict, JsonSerializerSettings? settings = null) {
+            settings ??= defaultSettings;
+            var json = JsonConvert.SerializeObject(dict, settings);
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
 
