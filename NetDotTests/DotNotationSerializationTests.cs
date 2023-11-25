@@ -1,4 +1,5 @@
 ﻿using NetDot;
+using System.Globalization;
 
 namespace NetDotTests
 {
@@ -320,6 +321,82 @@ namespace NetDotTests
             Assert.Equal("""
                 Bool1=false
                 Bool2=true
+
+                """, text);
+        }
+        [Fact]
+        public void DateTimesAreSerializedWithDateFormatString() {
+            var fmt = "yyyy'-'MM'-'dd HH':'mm':'ss";
+            var dt = new DateTime(2023, 03, 31, 08, 30, 15);
+            var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt });
+            Assert.Equal("""
+                dt=2023-03-31 08:30:15
+
+                """, text);
+        }
+        [Fact]
+        public void DateTimesNullableAreSerializedWithDateFormatString() {
+            var fmt = "yyyy'-'MM'-'dd HH':'mm':'ss";
+            DateTime? dt = new DateTime(2023, 03, 31, 08, 30, 15);
+            var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt });
+            Assert.Equal("""
+                dt=2023-03-31 08:30:15
+
+                """, text);
+        }
+        [Fact]
+        public void DateTimeWillRespectCulture() {
+            var fmt = "yyyy/MMMM/dd HH:mm:ss";
+            var ptbr = CultureInfo.GetCultureInfo("pt-br");
+            var dt = new DateTime(2023, 03, 31, 08, 30, 15);
+            var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt, Culture = ptbr });
+            Assert.Equal("""
+                dt=2023/março/31 08:30:15
+
+                """, text);
+        }
+
+        [Fact]
+        public void DateTimeOffsetsAreSerializedWithDateFormatString() {
+            var fmt = "yyyy'-'MM'-'dd HH':'mm':'ss";
+            var dt = new DateTimeOffset(2023, 03, 31, 08, 30, 15, TimeSpan.FromHours(-3));
+            var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt });
+            Assert.Equal("""
+                dt=2023-03-31 08:30:15
+
+                """, text);
+        }
+        [Fact]
+        public void FloatingPointNumbersUseInvariantCulture() {
+            var text = DotNotation.Serialize(new { n = 1.55 });
+            Assert.Equal("""
+                n=1.55
+
+                """, text);
+        }
+        [Fact]
+        public void FloatingPointNumbersWillUseSelectedCulture() {
+            var ptbr = CultureInfo.GetCultureInfo("pt-br");
+            var text = DotNotation.Serialize(new { n = 1.55 }, settings: new() { Culture = ptbr });
+            Assert.Equal("""
+                n=1,55
+
+                """, text);
+        }
+        [Fact]
+        public void DecimalsUseInvariantCulture() {
+            var text = DotNotation.Serialize(new { n = 1_999_999.55 });
+            Assert.Equal("""
+                n=1999999.55
+
+                """, text);
+        }
+        [Fact]
+        public void DecimalsWillUseSelectedCulture() {
+            var ptBr = CultureInfo.GetCultureInfo("pt-br");
+            var text = DotNotation.Serialize(new { n = 1_999_999.55 }, settings: new() { Culture = ptBr });
+            Assert.Equal("""
+                n=1999999,55
 
                 """, text);
         }

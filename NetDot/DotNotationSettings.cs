@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Globalization;
 
 namespace NetDot
 {
@@ -51,6 +53,14 @@ namespace NetDot
         /// <summary>
         /// Indicates that keys and values should be URL Encoded
         /// </summary>
-        public bool UrlEncode { get; set; } = false;    
+        public bool UrlEncode { get; set; } = false;
+        /// <summary>
+        /// Allows customization of date and time serialization
+        /// </summary>
+        public string DateFormatString { get; set; } = @"yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
+        /// <summary>
+        /// Controls serialization formats/rules for numbers and dates. Defaults to <see cref="CultureInfo.InvariantCulture"/>.
+        /// </summary>
+        public CultureInfo Culture { get;set; } = CultureInfo.InvariantCulture;
     }
 }

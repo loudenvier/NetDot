@@ -62,18 +62,6 @@ namespace NetDotTests
             Assert.Equal(47, person.Age);
         }
 
-
-        const string ActualDahuaTest = """
-            Enable=true
-            UploadServerList[0].Address=192.168.1.225
-            """;
-
-        /*[Fact]
-        public void CanDeserializePictureHttpUploadConfigFromDahuaApi() {
-            var config = DotNotation.Deserialize<PictureHttpUpload>(ActualDahuaTest);
-            Assert.NotNull(config);
-            Assert.Equal("true", config.Enable);
-        }*/
         [Fact]
         public void CanDeserializeMasterDetailWithManyRecords() {
             var master = DotNotation.Deserialize<Master>("""
@@ -83,7 +71,6 @@ namespace NetDotTests
                 """);
             Assert.NotNull(master);
         }
-
     }
 
     public class Master {
