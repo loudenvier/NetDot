@@ -104,6 +104,15 @@ var courses = felipe["course"] as List<object?>;
 Assert.Single(courses);
 Assert.Equal("judo", courses[0]);
 ```
+Arrays can be defined with arbitrary indexes and the library will "fill" missing indexes in their backing lists with `null` values:
+```csharp
+var dict = DotNotation.Parse("person[2]=felipe");
+var people = dict["person"] as List<object?>;
+Assert.Equal(3, people.Count);
+Assert.Null(people[0]);
+Assert.Null(people[1]);
+Assert.Equal("felipe", people[2]);
+```
 
 ### Deserialization
 
@@ -130,3 +139,48 @@ Assert.Equal(47, person.Age);
 ```
 
 Notice that Json.NET took care of matching our pascal case properties to the lowercase keys used in this dot notation text, and that it also converted `"47"` to `int`. It will always try to convert "*string*" values in dot notation into the type of the matching property.
+
+### Simple record
+
+Records can also be deserialized as expected:
+```csharp
+public record PersonRecord(string Name, int Age);
+
+var person = DotNotation.Deserialize<PersonRecord>("""
+    name=felipe
+    age=47
+    """);
+Assert.Equal("felipe", person.Name);
+Assert.Equal(47, person.Age);
+```
+
+### Nested classes and records
+
+Classes can be nested and have arrays/lists as members:
+```csharp
+public class Master {
+    public string Name { get; set; }
+    public Detail[] Details { get; set; }
+}
+public class Detail {
+    public int Id { get; set; } 
+    public string Tag { get; set; }
+}
+```
+```csharp
+var master = DotNotation.Deserialize<Master>("""
+    Name=Master Record
+    details[0].Id=123
+    details[0].Tag=test
+    details[2].Id=321
+    """);
+Assert.NotNull(master);
+Assert.Equal("Master Record", master.Name);
+Assert.Equal(3, master.Details.Length); // one "missing" item was added to "fill" the list 
+Assert.Equal(123, master.Details[0].Id);
+Assert.Equal("test", master.Details[0].Tag);
+Assert.Null(master.Details[1]); // index 1 was missing so it was "filled" with null
+Assert.Equal(321, master.Details[2].Id);
+Assert.Null(master.Details[2].Tag);
+```
+
