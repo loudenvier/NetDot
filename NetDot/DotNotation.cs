@@ -68,21 +68,6 @@ namespace NetDot
             return (membersAndValue[0].Split('.'), membersAndValue[1]);
         }
 
-        private static object CreateMemberProp(IDictionary<string, object> property, Member member) {
-            if (!property.ContainsKey(member.Name))
-                property[member.Name] = member.IsArray
-                    ? new List<object?>()
-                    : new Dictionary<string, object>();
-            return property[member.Name];
-        }
-        
-        private static void StoreArrayItem(List<object?> list, Member member, object item) {
-            // the list must contain at least index + 1 items!
-            while (list.Count < member.Index + 1)
-                list.Add(null);
-            list[member.Index] = item;
-        }
-
         static readonly JsonSerializerSettings defaultSettings = new() {
             ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
