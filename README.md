@@ -43,7 +43,7 @@ Assert.Equal("0.0.0.0", netConfig.WLan.eth2.Network.DnsServers[1]);
 ...
 ```
 ## Motivation
-[Dahua's](https://www.dahuasecurity.com) camera API/SDK uses this flavor of *dot notation* profusely in their responses (notice the entry `Network.Domain=dauha` in the example above). This library was born when I started writing code to inferface with a brazilian branded ((Intelbras](https://www.intelbras.com)) Dahua facial recognition device. I adamantly refused to work with plain strings or untyped dictionaries, so I wrote a very simple dot notation parser and hacked my way with [Newtonsoft's Json.Net](https://www.newtonsoft.com/json) to build strongly typed objects out of parsed dictionaries and lists.
+[Dahua's](https://www.dahuasecurity.com) camera API/SDK uses this flavor of *dot notation* profusely in their responses (notice the entry `Network.Domain=dauha` in the example above). This library was born when I started writing code to inferface with a brazilian branded ([Intelbras](https://www.intelbras.com)) Dahua facial recognition device. I adamantly refused to work with plain strings or untyped dictionaries, so I wrote a very simple dot notation parser and hacked my way with [Newtonsoft's Json.Net](https://www.newtonsoft.com/json) to build strongly typed objects out of parsed dictionaries and lists.
 
 ## How it works
 
