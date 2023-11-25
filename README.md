@@ -53,3 +53,48 @@ Since Json objects can be represented as a hierarchy of dictionaries (`IDictiona
 
 Deserialization is totally optional, and you can work directly with the dictionary/list hierarchy, which can be useful for dynamic scenarios. You can also leverage the fact that the `ExpandoObject` implements the `IDictionary<string, object>` interface and pass it as the root of the `Parse(string text, IDictionary<string, object> root)` method and have proper dynamic access to parsed properties and lists.
 
+## Usage
+
+Parsing is at the core of NetDot's functionality. You can use `DotNotation.Parse()` static method directly to parse dot notation text into a hierarchy of dictionaries and lists which can be traversed with some typecasting. Working with it can be a little awkward, so the best thing to do is to *deserialize* the text into strongly typed objects with `DotNotation.Deserialize<T>()`static method. You can also *serialize* objects back into dot notation (with many custom settings available to control de final output!) by calling `DotNotation.Serialize()` static method.
+
+### Parsing
+
+`DotNotation.Parse` will build a hierarchy of dictionaries and lists which can be traversed with some typecasting::
+```csharp
+var dict = DotNotation.Parse("""
+    person.name=felipe
+    person.age=47
+    """);
+var person = (Dictionary<string, object>)dict["person"];
+Assert.Equal("felipe", person["name"]);
+Assert.Equal("47", person["age"]);
+```
+
+Arrays will become lists holding either direct values or nested dictionaries for complex objects:
+```csharp
+var dict = DotNotation.Parse("person[0]=felipe");
+var people = (List<object?>)dict["person"];
+Assert.Single(people);
+Assert.Equal("felipe", people[0]); // holds a simple value
+```
+```csharp
+var dict = DotNotation.Parse("person[0].name=felipe");
+var people = dict["pessoa"] as List<object?>;
+Assert.Single(pessoas);
+var person = people[0] as Dictionary<string, object>; // holds a nested Dictionary<string, object>
+Assert.Single(person);
+Assert.Equal("felipe", person["name"]); // holds a simple value
+```
+
+Arrays can hold other arrays (which could also hold arrays *ad aeternum*):
+```csharp
+var dict = DotNotation.Parse("""
+    person[0].course[0]=judo
+    person[0].name=felipe
+    """);
+var people = dict["person"] as List<object?>;
+var felipe = people[0] as Dictionary<string, object>;
+var courses = felipe["course"] as List<object?>;
+Assert.Single(courses);
+Assert.Equal("judo", courses[0]);
+```
