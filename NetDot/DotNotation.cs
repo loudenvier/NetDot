@@ -83,8 +83,13 @@ namespace NetDot
             var json = JsonConvert.SerializeObject(dict, settings);
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
-
+        
         public static string Serialize(object? o, string prefix = "", DotNotationSettings? settings = null) {
+            settings ??= DotNotationSettings.Default;
+            return SerializeInternal(o, prefix, settings)
+                .TrimEnd(settings.EntrySeparator.ToCharArray());
+        }
+        static string SerializeInternal(object? o, string prefix = "", DotNotationSettings? settings = null) {
             settings ??= DotNotationSettings.Default;
             string dot(string? s) => string.IsNullOrEmpty(s) ? "" : s + settings.DotConnector;
             if (o is null) return "";
@@ -94,7 +99,7 @@ namespace NetDot
                 if (dict is not null) {
                     foreach (DictionaryEntry kvp in dict) {
                         if (kvp.Value is null) continue;
-                        sb.Append(Serialize(kvp.Value, $"{prefix}[{kvp.Key}]", settings));
+                        sb.Append(SerializeInternal(kvp.Value, $"{prefix}[{kvp.Key}]", settings));
                     }
                 }
             } else if (o.GetType().IsArray) {
@@ -102,13 +107,13 @@ namespace NetDot
                 for (int i = 0; i < arr?.Length; i++) {
                     var value = arr.GetValue(i);
                     if (value is null) continue;
-                    sb.Append(Serialize(value, $"{prefix}[{i}]", settings));
+                    sb.Append(SerializeInternal(value, $"{prefix}[{i}]", settings));
                 }
             } else if (o.GetType().IsClass && o is not string) {
                 foreach (var prop in o.GetType().GetProperties()) {
                     var v = prop.GetValue(o);
                     if (v is not null)
-                        sb.Append(Serialize(v, $"{dot(prefix)}{prop.Name}", settings));
+                        sb.Append(SerializeInternal(v, $"{dot(prefix)}{prop.Name}", settings));
                 }
             } else {
                 sb.Append(WriteEntry(prefix, o, settings)); // $"{prefix}={o}");

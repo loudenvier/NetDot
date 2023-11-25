@@ -15,7 +15,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name=Felipe
                 Age=47
-
                 """, 
                 text);
         }
@@ -26,7 +25,6 @@ namespace NetDotTests
                 Name=Felipe
                 Age=47
                 Brother.Name=Julio
-
                 """,
                 text);
         }
@@ -38,7 +36,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Items[0]=Felipe
                 Items[1]=47
-
                 """,
                 text);
         }
@@ -53,7 +50,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Items[Name]=Felipe
                 Items[Age]=47
-
                 """,
                 text);
         }
@@ -67,7 +63,6 @@ namespace NetDotTests
                 Items[1]=47
                 Items[2][0]=Julio
                 Items[2][1]=2
-
                 """,
                 text);
         }
@@ -84,7 +79,6 @@ namespace NetDotTests
                 Items[1]=47
                 Items[2][Name]=Julio
                 Items[2][Position]=2
-
                 """,
                 text);
         }
@@ -98,7 +92,6 @@ namespace NetDotTests
             Assert.Equal("""
                 dict[Items][0]=Felipe
                 dict[Items][1]=47
-
                 """,
                 text);
         }
@@ -147,7 +140,6 @@ namespace NetDotTests
                 JobTransfers[Night].rate=15
                 Name=Felipe
                 Age=47
-
                 """, text);
         }
         [Fact]
@@ -157,7 +149,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name:Felipe
                 Age:47
-
                 """,
                  text);
         }
@@ -170,7 +161,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name: Felipe
                 Age: 47
-
                 """,
                  text);
         }
@@ -185,7 +175,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name : Felipe
                 Age : 47
-
                 """,
                  text);
         }
@@ -194,7 +183,7 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 },
                 settings: new DotNotationSettings { EntrySeparator = ", " });
             Assert.Equal("""
-                Name=Felipe, Age=47, 
+                Name=Felipe, Age=47
                 """,
                  text);
         }
@@ -205,7 +194,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name="Felipe"
                 Age=47
-
                 """,
                  text);
         }
@@ -216,7 +204,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name="Felipe"
                 Age="47"
-
                 """,
                  text);
         }
@@ -227,7 +214,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Name=_Felipe_
                 Age=_47_
-
                 """,
                  text);
         }
@@ -238,7 +224,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Person_Name=Felipe
                 Person_Age=47
-
                 """,
                  text);
         }
@@ -249,7 +234,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Person.Name=Felipe
                 Person.Age=47
-
                 """,
                  text);
         }
@@ -260,7 +244,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Person.Name=" Felipe   "
                 Person.Age=47
-
                 """,
                  text);
         }
@@ -271,7 +254,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Person.Name=Felipe
                 Person.Age=47
-
                 """, text);
         }
         [Fact]
@@ -281,7 +263,6 @@ namespace NetDotTests
             Assert.Equal("""
                 { Person.Name=Felipe }
                 { Person.Age=47 }
-
                 """, text);
         }
         [Fact]
@@ -291,7 +272,6 @@ namespace NetDotTests
             });
             Assert.Equal("""
                 Item=A%C3%A7%C3%BAcar%20Mascavo
-
                 """, text);
         }
         [Fact]
@@ -301,7 +281,6 @@ namespace NetDotTests
             });
             Assert.Equal("""
                 A%C3%A7%C3%BAcar=Doce
-
                 """, text);
         }
         [Fact]
@@ -312,7 +291,6 @@ namespace NetDotTests
             });
             Assert.Equal("""
                 Item=%22A%C3%A7%C3%BAcar%20Mascavo%22
-
                 """, text);
         }
         [Fact]
@@ -321,7 +299,6 @@ namespace NetDotTests
             Assert.Equal("""
                 Bool1=false
                 Bool2=true
-
                 """, text);
         }
         [Fact]
@@ -331,7 +308,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt });
             Assert.Equal("""
                 dt=2023-03-31 08:30:15
-
                 """, text);
         }
         [Fact]
@@ -341,7 +317,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt });
             Assert.Equal("""
                 dt=2023-03-31 08:30:15
-
                 """, text);
         }
         [Fact]
@@ -352,7 +327,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt, Culture = ptbr });
             Assert.Equal("""
                 dt=2023/março/31 08:30:15
-
                 """, text);
         }
 
@@ -363,7 +337,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { dt }, settings: new() { DateFormatString = fmt });
             Assert.Equal("""
                 dt=2023-03-31 08:30:15
-
                 """, text);
         }
         [Fact]
@@ -371,7 +344,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { n = 1.55 });
             Assert.Equal("""
                 n=1.55
-
                 """, text);
         }
         [Fact]
@@ -380,7 +352,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { n = 1.55 }, settings: new() { Culture = ptbr });
             Assert.Equal("""
                 n=1,55
-
                 """, text);
         }
         [Fact]
@@ -388,7 +359,6 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { n = 1_999_999.55 });
             Assert.Equal("""
                 n=1999999.55
-
                 """, text);
         }
         [Fact]
@@ -397,8 +367,20 @@ namespace NetDotTests
             var text = DotNotation.Serialize(new { n = 1_999_999.55 }, settings: new() { Culture = ptBr });
             Assert.Equal("""
                 n=1999999,55
-
                 """, text);
+        }
+        [Fact]
+        public void CanSerializeAsURLQueryString() {
+            var queryString = DotNotation.Serialize(new {
+                page = 10,
+                pageSize = 50,
+                user = new { id = 1, }, 
+                token = "my token/123"
+            }, settings: new () {
+                UrlEncode = true,
+                EntrySeparator = "&",
+            });
+            Assert.Equal("page=10&pageSize=50&user.id=1&token=my%20token%2F123", queryString);
         }
 
     }
