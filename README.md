@@ -183,4 +183,106 @@ Assert.Null(master.Details[1]); // index 1 was missing so it was "filled" with n
 Assert.Equal(321, master.Details[2].Id);
 Assert.Null(master.Details[2].Tag);
 ```
+The previous code would work with no changes if `Master` and `Detail` were records:
+```csharp
+public record Master(string Name, Detail[] Details);
+public record Detail(int Id, string Tag);
+```
 
+### Serialization
+
+The library didn't start with serializion in mind, but now it's a first class citizen and it's surprizingly useful. For example, you can tweak it's options to serialize a class into an [URL's](https://en.wikipedia.org/wiki/URL) [query string](https://en.wikipedia.org/wiki/Query_string).
+
+#### Basic serialization
+
+NetDot serializes objects in dot notation format (the *'dot'* connector is configurable) separating each entry by new lines (the *'entry separator'* is also configurable):
+
+```csharp
+var text = DotNotation.Serialize(new { Name = "Felipe", Age = 47 });
+Assert.Equal("""
+    Name=Felipe
+    Age=47
+    """, 
+    text);
+```
+
+#### A more complex serialization
+
+You can serialize very complex object graphs to dot notation with the same method:
+
+```csharp
+record Person(string Name, int Age);
+record Group(Person[] Persons);
+record Job(string Name, decimal rate);
+record Employee(
+    string Name, int Age, 
+    Group Friends, 
+    Group ManagedPeople, 
+    Group Supervisors,
+    Job[] Jobs,
+    Dictionary<string, Job> JobTransfers) : Person(Name, Age);
+
+var person1 = new Person("Ricardo", 45);
+var person2 = new Person("Paulo", 72);
+var person3 = new Person("Marcelle", 52);
+var employee = new Employee(
+    Name: "Felipe",
+    Age: 47,
+    Friends: new Group(new[] { person1, person3 }),
+    ManagedPeople: new Group(new[] { person2 }),
+    Supervisors: new Group(new[] { person3 }),
+    Jobs: new[] { new Job("Worker", 20m), new Job("Slave", 1m) },
+    JobTransfers: new() {
+        ["Night"] = new Job("Bouncer", 15m),
+    }
+    );
+var text = DotNotation.Serialize(employee);
+Assert.Equal("""
+    Friends.Persons[0].Name=Ricardo
+    Friends.Persons[0].Age=45
+    Friends.Persons[1].Name=Marcelle
+    Friends.Persons[1].Age=52
+    ManagedPeople.Persons[0].Name=Paulo
+    ManagedPeople.Persons[0].Age=72
+    Supervisors.Persons[0].Name=Marcelle
+    Supervisors.Persons[0].Age=52
+    Jobs[0].Name=Worker
+    Jobs[0].rate=20
+    Jobs[1].Name=Slave
+    Jobs[1].rate=1
+    JobTransfers[Night].Name=Bouncer
+    JobTransfers[Night].rate=15
+    Name=Felipe
+    Age=47
+    """, text);
+```
+
+#### Changing serialization behavior
+
+The `DotNotationSettings` class can be used to control serialization behavior. You can change many aspects of it such as which character to use as name/value separator (defaults to `=`), if spaces (or other filling characaters) are to be added after the `name` and/or before the `value`, if strings or all types should be quoted, which quoting character to use... even the `.` character itself can be changed to any other `char`. You can also define which Culture and date format to use for value serialization, determine if entries should be URL Encoded, among many other options.
+
+##### Serializing as URL Query Strings
+
+```csharp
+var queryString = DotNotation.Serialize(new {
+    page = 10,
+    pageSize = 50,
+    user = new { id = 1, }, 
+    token = "my token/123"
+}, settings: new () {
+    UrlEncode = true,
+    EntrySeparator = "&",
+});
+Assert.Equal("page=10&pageSize=50&user.id=1&token=my%20token%2F123", queryString);
+```
+
+To make your life easier you can use the neat `AsQueryString()` extension method:
+```csharp
+var queryString = new {
+    page = 10,
+    pageSize = 50,
+    user = new { id = 1, }, 
+    token = "my token/123"
+}.AsQueryString();
+Assert.Equal("page=10&pageSize=50&user.id=1&token=my%20token%2F123", queryString);
+```
