@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
 using System.Globalization;
 
 namespace NetDot
@@ -62,5 +61,27 @@ namespace NetDot
         /// Controls serialization formats/rules for numbers and dates. Defaults to <see cref="CultureInfo.InvariantCulture"/>.
         /// </summary>
         public CultureInfo Culture { get;set; } = CultureInfo.InvariantCulture;
+
+        /// <summary>
+        /// Clones this instance copying all properties
+        /// </summary>
+        /// <returns>a new <see cref="DotNotationSettings"/> with the source properties copied</returns>
+        public DotNotationSettings Clone() => new() {
+            DotConnector = DotConnector,
+            KeyValueSeparator = KeyValueSeparator,
+            QuoteChar = QuoteChar,
+            SpacingAfterKey = SpacingAfterKey,
+            SpacingBeforeValue = SpacingBeforeValue,
+            EntrySeparator = EntrySeparator,
+            QuoteStrings = QuoteStrings,
+            QuoteValues = QuoteValues,
+            TrimValues = TrimValues,
+            TrimChars = TrimChars,
+            SurroundingTexts = SurroundingTexts,
+            UrlEncode = UrlEncode,
+            DateFormatString = DateFormatString,
+            Culture = Culture,
+        };
+
     }
 }
