@@ -33,7 +33,7 @@ public record NetworkInterface(Network Network, string SSID);
 public record Network(string DefaultGateway, bool DhcpEnable, string[] DnsServers, string SubnetMask);
 ```
 
-**...then this library is for you!** 
+**...this library is for you!** 
 
 With it all you need to do to deserialize the above text into these objects is:
 ```csharp
@@ -43,15 +43,11 @@ Assert.Equal("0.0.0.0", netConfig.WLan.eth2.Network.DnsServers[1]);
 ...
 ```
 ## Motivation
-[Dahua's](https://www.dahuasecurity.com) camera API/SDK uses this flavor of *dot notation* profusely in their responses (notice the entry `Network.Domain=dauha` in the example above). When I started writing code to inferface with one of their facial recognition products branded by a Brazilian company ([Intelbras](https://www.intelbras.com)) this library was born. 
-
-I adamantly refused to work with plain strings or untyped dictionaries, so I wrote a very simple dot notation parser and hacked my way with [Newtonsoft' Json.Net](https://www.newtonsoft.com/json) to build strongly typed objects out of parsed dictionaries and lists.
+[Dahua's](https://www.dahuasecurity.com) camera API/SDK uses this flavor of *dot notation* profusely in their responses (notice the entry `Network.Domain=dauha` in the example above). This library was born when I started writing code to inferface with a brazilian branded (([Intelbras](https://www.intelbras.com)) Dahua facial recognition device. I adamantly refused to work with plain strings or untyped dictionaries, so I wrote a very simple dot notation parser and hacked my way with [Newtonsoft's Json.Net](https://www.newtonsoft.com/json) to build strongly typed objects out of parsed dictionaries and lists.
 
 ## How it works
 
-Since Json objects can be represented as a hierarchy of dictionaries (`IDictionary<string, object>`) and lists (`IList<object?>`), the library simply parses the dot notation text into such hierarchy, then uses Json.Net to serialize it to Json and finally deserializes it back into strongly typed objects. 
-
-Deserialization is totally optional, and you can work directly with the dictionary/list hierarchy, which can be useful for dynamic scenarios. You can also leverage the fact that the `ExpandoObject` implements the `IDictionary<string, object>` interface and pass it as the root of the `Parse(string text, IDictionary<string, object> root)` method and have proper dynamic access to parsed properties and lists.
+Since [Json](https://www.json.org/json-en.html) itself is built as a collection of name/value pairs (dictionaries) and ordered lists of values (lists) it can be represented as a hierarchy of dictionaries (`IDictionary<string, object>`) and lists (`IList<object?>`), and the library simply parses the dot notation text into such hierarchy, then uses Json.Net to serialize it to Json and finally deserializes it back into strongly typed objects. Deserialization is totally optional, and you can work directly with the dictionary/list hierarchy, which can be useful for dynamic scenarios. You can also leverage the fact that the `ExpandoObject` implements the `IDictionary<string, object>` interface and pass it as the root of the `Parse(string text, IDictionary<string, object> root)` method and have proper dynamic access to parsed properties and lists.
 
 ## Usage
 
@@ -90,7 +86,7 @@ Assert.Equal("felipe", people[0]); // holds a simple value
 ```csharp
 var dict = DotNotation.Parse("person[0].name=felipe");
 var people = dict["pessoa"] as List<object?>;
-Assert.Single(pessoas);
+Assert.Single(people);
 var person = people[0] as Dictionary<string, object>; // holds a nested Dictionary<string, object>
 Assert.Single(person);
 Assert.Equal("felipe", person["name"]); 
