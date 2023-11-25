@@ -99,8 +99,8 @@ namespace NetDotTests
     }
 
     public class Master {
-        public string Name { get; set; }
-        public Detail[] Details { get; set; }
+        public string Name { get; set; } = "";
+        public Detail[] Details { get; set; } = Array.Empty<Detail>();  
     }
     public class Detail {
         public int Id { get; set; } 
