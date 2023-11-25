@@ -55,7 +55,7 @@ Deserialization is totally optional, and you can work directly with the dictiona
 
 ## Usage
 
-Parsing is at the core of NetDot's functionality. You can use `DotNotation.Parse()` static method directly to parse dot notation text into a hierarchy of dictionaries and lists which can be traversed with some typecasting. Working with it can be a little awkward, so the best thing to do is to *deserialize* the text into strongly typed objects with `DotNotation.Deserialize<T>()`static method. You can also *serialize* objects back into dot notation (with many custom settings available to control de final output!) by calling `DotNotation.Serialize()` static method.
+Parsing is at the core of NetDot's functionality. You can use `DotNotation.Parse()` static method directly to parse dot notation text into a hierarchy of dictionaries and lists which can be traversed with some typecasting. Working with it can be a little awkward, so the best thing to do is to *deserialize* the text into strongly typed objects with `DotNotation.Deserialize<T>()`static method. You can also *serialize* objects to dot notation format (with many custom settings available to control de final output!) by calling `DotNotation.Serialize()` static method.
 
 ### Parsing
 
@@ -69,7 +69,17 @@ var person = (Dictionary<string, object>)dict["person"];
 Assert.Equal("felipe", person["name"]);
 Assert.Equal("47", person["age"]);
 ```
+Simple members at root level are directly accessible (making it easy to parse lines of `{name}={value}`  pairs):
+```csharp
+var dict = DotNotation.Parse("""
+    person=felipe
+    age=47
+    """);
+Assert.Equal("felipe", dict["person"]);
+Assert.Equal("47", dict["age"]);
+```
 
+#### Arrays/lists
 Arrays will become lists holding either direct values or nested dictionaries for complex objects:
 ```csharp
 var dict = DotNotation.Parse("person[0]=felipe");
@@ -83,7 +93,7 @@ var people = dict["pessoa"] as List<object?>;
 Assert.Single(pessoas);
 var person = people[0] as Dictionary<string, object>; // holds a nested Dictionary<string, object>
 Assert.Single(person);
-Assert.Equal("felipe", person["name"]); // holds a simple value
+Assert.Equal("felipe", person["name"]); 
 ```
 
 Arrays can hold other arrays (which could also hold arrays *ad aeternum*):
@@ -98,3 +108,29 @@ var courses = felipe["course"] as List<object?>;
 Assert.Single(courses);
 Assert.Equal("judo", courses[0]);
 ```
+
+### Deserialization
+
+Deserialization works by first *parsing* the dot notation text into NetDot's customary hierarchy, then serializing it to JSON via Json.NET and, finally, deserializing the resulting JSON back into the proper type (again with Json.NET). This way the library leverages all amenities provided by Newtonsoft's amazingly robust, flexible and mature codebase. It works because Json itself is built as a collection of name/value pairs (dictionaries) and ordered lists of values (lists), which are incidentally equivalent to NetDot's parsed results.
+
+#### Simple class
+To deserialize a simple class `Person`:
+```csharp
+public class Person
+{
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
+}
+```
+Just call `DotNotation.Deserialize<Person>(text)`:
+
+```csharp
+var person = DotNotation.Deserialize<Person>("""
+    name=felipe
+    age=47
+    """);
+Assert.Equal("felipe", person.Name);
+Assert.Equal(47, person.Age);
+```
+
+Notice that Json.NET took care of matching our pascal case properties to the lowercase keys used in this dot notation text, and that it also converted `"47"` to `int`. It will always try to convert "*string*" values in dot notation into the type of the matching property.
