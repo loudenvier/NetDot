@@ -55,7 +55,7 @@ Parsing is at the core of NetDot's functionality. You can use `DotNotation.Parse
 
 ### Parsing
 
-`DotNotation.Parse` will build a hierarchy of dictionaries and lists which can be traversed with some typecasting::
+`DotNotation.Parse` will build a hierarchy of dictionaries and lists which can be traversed with some typecasting:
 ```csharp
 var dict = DotNotation.Parse("""
     person.name=felipe
