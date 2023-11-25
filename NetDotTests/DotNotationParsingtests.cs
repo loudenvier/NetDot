@@ -149,6 +149,8 @@ namespace NetDotTests
             var pessoas = dict["pessoa"] as List<object?>;
             Assert.NotNull(pessoas);
             Assert.Equal(3, pessoas.Count);
+            Assert.Null(pessoas[0]);
+            Assert.Null(pessoas[1]);
             Assert.Equal("felipe", pessoas[2]);
         }
         [Fact]
