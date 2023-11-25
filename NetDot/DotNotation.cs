@@ -83,7 +83,7 @@ namespace NetDot
             var json = JsonConvert.SerializeObject(dict, settings);
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
-        
+
         public static string Serialize(object? o, string prefix = "", DotNotationSettings? settings = null) {
             settings ??= DotNotationSettings.Default;
             return SerializeInternal(o, prefix, settings)
