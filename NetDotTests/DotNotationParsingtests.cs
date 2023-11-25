@@ -1,7 +1,5 @@
 using NetDot;
-using NuGet.Frameworks;
 using System.Dynamic;
-using System.Reflection.Metadata;
 
 namespace NetDotTests
 {
@@ -13,6 +11,17 @@ namespace NetDotTests
             Assert.NotNull(dict);
             Assert.Single(dict);
             Assert.Equal("felipe", dict["pessoa"]);
+        }
+        [Fact]
+        public void CanParseMultiLineSimpleMember() {
+            var dict = DotNotation.Parse("""
+                person=felipe
+                age=47
+                """);
+            Assert.NotNull(dict);
+            Assert.Equal(2, dict.Count);
+            Assert.Equal("felipe", dict["person"]);
+            Assert.Equal("47", dict["age"]);
         }
         [Fact]
         public void CanParseSingleLine() {
@@ -323,5 +332,5 @@ namespace NetDotTests
             Assert.Equal("9", pessoa.children[0]["idade"]);
             Assert.Same(pessoa, result);
         }
-    }
+   }
 }
