@@ -382,6 +382,98 @@ namespace NetDotTests
             });
             Assert.Equal("page=10&pageSize=50&user.id=1&token=my%20token%2F123", queryString);
         }
+        [Fact]
+        public void CanSerializeTwoDimensionalRootArray() {
+            object[,] brothers = { { "felipe", 47 }, { "julio", 45 } };
+            var text = DotNotation.Serialize(brothers);
+            Assert.Equal("""
+                [0][0]=felipe
+                [0][1]=47
+                [1][0]=julio
+                [1][1]=45
+                """, text);
+        }
+        [Fact]
+        public void CanSerializeTwoDimensionalArray() {
+            object[,] brothers = { { "felipe", 47 }, { "julio", 45 } };
+            var text = DotNotation.Serialize(new { brothers });
+            Assert.Equal("""
+                brothers[0][0]=felipe
+                brothers[0][1]=47
+                brothers[1][0]=julio
+                brothers[1][1]=45
+                """, text);
+        }
+        [Fact]
+        public void CanSerializeMultiDimensionalArray() {
+            object[,,] brothers = {
+                { { "felipe", 47 }, { "julio", 45 } },
+                { { "marcelle", 52 }, { "rafael", 45 } },
+                { { "leonardo", 48 }, { "rodrigo", 43 } },
+            };
+            var text = DotNotation.Serialize(new { brothers });
+            Assert.Equal("""
+                brothers[0][0][0]=felipe
+                brothers[0][0][1]=47
+                brothers[0][1][0]=julio
+                brothers[0][1][1]=45
+                brothers[1][0][0]=marcelle
+                brothers[1][0][1]=52
+                brothers[1][1][0]=rafael
+                brothers[1][1][1]=45
+                brothers[2][0][0]=leonardo
+                brothers[2][0][1]=48
+                brothers[2][1][0]=rodrigo
+                brothers[2][1][1]=43
+                """, text);
+        }
+        [Fact]
+        public void CanSerializeJaggedRootArray() {
+            object[][] brothers;
+            brothers = new object[2][];
+            brothers[0] = new object[] { "felipe", 47 };
+            brothers[1] = new object[] { "julio", 45, "paula", 43 };
+            var text = DotNotation.Serialize(brothers);
+            Assert.Equal("""
+                [0][0]=felipe
+                [0][1]=47
+                [1][0]=julio
+                [1][1]=45
+                [1][2]=paula
+                [1][3]=43
+                """, text);
+        }
+        [Fact]
+        public void CanSerializeRootArray() {
+            object[][] brothers;
+            brothers = new object[2][];
+            brothers[0] = new object[] { "felipe", 47 };
+            brothers[1] = new object[] { "julio", 45, "paula", 43 };
+            var text = DotNotation.Serialize(new { brothers });
+            Assert.Equal("""
+                brothers[0][0]=felipe
+                brothers[0][1]=47
+                brothers[1][0]=julio
+                brothers[1][1]=45
+                brothers[1][2]=paula
+                brothers[1][3]=43
+                """, text);
+        }
+        [Fact]
+        public void CanSerializeMultidimensionalArrayInsideArray() {
+            var text = DotNotation.Serialize(new { value = new object[] { 
+                "felipe", 
+                new object[,] { { 10, 22, "test" }, { 30, 44, "teste2" } } } });
+            Assert.Equal("""
+                value[0]=felipe
+                value[1][0][0]=10
+                value[1][0][1]=22
+                value[1][0][2]=test
+                value[1][1][0]=30
+                value[1][1][1]=44
+                value[1][1][2]=teste2
+                """, text);
+        }
 
     }
 }

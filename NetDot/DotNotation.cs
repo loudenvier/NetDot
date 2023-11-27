@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using NetDot.Utils;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace NetDot
@@ -104,11 +106,12 @@ namespace NetDot
                 }
             } else if (o.GetType().IsArray) {
                 var arr = o as Array;
-                for (int i = 0; i < arr?.Length; i++) {
-                    var value = arr.GetValue(i);
-                    if (value is null) continue;
-                    sb.Append(SerializeInternal(value, $"{prefix}[{i}]", settings));
-                }
+                arr?.VisitItems((value, idx) => {
+                    if (value != null) {
+                        var indexText = string.Join("", idx.Select(i => $"[{i}]"));
+                        sb.Append(SerializeInternal(value, $"{prefix}{indexText}", settings));
+                    }
+                });
             } else if (o.GetType().IsClass && o is not string) {
                 foreach (var prop in o.GetType().GetProperties()) {
                     var v = prop.GetValue(o);
